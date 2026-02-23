@@ -24,31 +24,27 @@ export function activate(context: vscode.ExtensionContext) {
   const menu = vscode.commands.registerCommand(
     "easy-new-file.openMenu",
     async () => {
+      const items: vscode.QuickPickItem[] = [
+        // Group 1
+        { label: "File type", kind: vscode.QuickPickItemKind.Separator },
+        { label: "React Component" },
+        { label: "TypeScript Class" },
+        { label: "TypeScript Interface" },
+        { label: "TypeScript File" },
+        { label: "Scratch File" },
 
-      const options = [
-        "React Component",
-        "Typescript Class",
-        "Typescript File",
+        // Group 2
+        { label: "File Location", kind: vscode.QuickPickItemKind.Separator },
+        { label: "/" },
       ];
 
-	  const selection = await vscode.window.showQuickPick(options, {
-        placeHolder: "Select a file type to create",
+      const selected = await vscode.window.showQuickPick(items, {
+        placeHolder: "Select an action",
       });
 
-      switch (selection) {
-        case "React Component":
-          vscode.window.showInformationMessage("Creating React Component");
-          break;
-        case "Typescript Class":
-          vscode.window.showInformationMessage("Creating Typescript Class");
-          break;
-        case "Typescript File":
-          vscode.window.showInformationMessage("Creating Typescript File");
-          break;
+      if (!selected) return;
 
-        default:
-          break;
-      }
+      vscode.window.showInformationMessage(`You chose: ${selected.label}`);
     },
   );
 
