@@ -29,7 +29,16 @@
         "key": "alt+n",
         "when": "true"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "easy-new-file.openMenu",
+          "when": "explorerResourceIsFolder",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
