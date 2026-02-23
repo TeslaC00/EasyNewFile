@@ -48,17 +48,24 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (!fileType) return;
 
-      const selectedFolder = await vscode.window.showOpenDialog({
-        canSelectFiles: false,
-        canSelectFolders: true,
-        canSelectMany: false,
-        openLabel: "Select target folder",
-        defaultUri: vscode.workspace.workspaceFolders?.[0].uri,
-      });
+      let folderUri: vscode.Uri;
 
-      if (!selectedFolder) return;
+      if (vscode.window.activeTextEditor) {
+        folderUri = vscode.Uri.file(
+          path.dirname(vscode.window.activeTextEditor.document.uri.fsPath),
+        );
+      } else {
+        const selectedFolder = await vscode.window.showOpenDialog({
+          canSelectFiles: false,
+          canSelectFolders: true,
+          canSelectMany: false,
+          openLabel: "Select target folder",
+          defaultUri: vscode.workspace.workspaceFolders?.[0].uri,
+        });
 
-      const folderuri = selectedFolder[0];
+        if (!selectedFolder) return;
+        folderUri = selectedFolder[0];
+      }
 
       const fileName = await vscode.window.showInputBox({
         prompt: "Insert name",
@@ -106,7 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
         `File name: ${fileName} & extension:${extension} & type:${fileType}`,
       );
 
-      const filePath = path.join(folderuri.fsPath, fileName + extension);
+      const filePath = path.join(folderUri.fsPath, fileName + extension);
       console.debug("File Path", filePath);
 
       const fileUri = vscode.Uri.file(filePath);
