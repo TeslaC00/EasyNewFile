@@ -1,5 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import path from "path";
 import * as vscode from "vscode";
 
 // This method is called when your extension is activated
@@ -24,27 +25,104 @@ export function activate(context: vscode.ExtensionContext) {
   const menu = vscode.commands.registerCommand(
     "easy-new-file.openMenu",
     async () => {
-      const items: vscode.QuickPickItem[] = [
-        // Group 1
-        { label: "File type", kind: vscode.QuickPickItemKind.Separator },
-        { label: "React Component" },
-        { label: "TypeScript Class" },
-        { label: "TypeScript Interface" },
-        { label: "TypeScript File" },
-        { label: "Scratch File" },
-
-        // Group 2
-        { label: "File Location", kind: vscode.QuickPickItemKind.Separator },
-        { label: "/" },
+      const fileTypes = [
+        "React Component",
+        "TypeScript Class",
+        "TypeScript Interface",
+        "TypeScript File",
+        "Scratch File",
       ];
 
-      const selected = await vscode.window.showQuickPick(items, {
-        placeHolder: "Select an action",
+      const fileType = await vscode.window.showQuickPick(fileTypes, {
+        placeHolder: "Select a file type",
       });
 
-      if (!selected) return;
+      if (!fileType) return;
 
-      vscode.window.showInformationMessage(`You chose: ${selected.label}`);
+      const folders = vscode.workspace.workspaceFolders;
+      if (!folders) {
+        vscode.window.showErrorMessage(
+          "No workspace folder found. Please open a folder first.",
+        );
+        return;
+      }
+
+      const folder = await vscode.window.showQuickPick(
+        folders.map((f) => f.name),
+        { placeHolder: "Select target folder" },
+      );
+
+      if (!folder) return;
+
+      const selectedFolder = folders.find((f) => f.name === folder)!;
+
+      const fileName = await vscode.window.showInputBox({
+        prompt: "Insert name",
+      });
+
+      if (!fileName) return;
+
+      const capitalizedFileName =
+        fileName.charAt(0).toUpperCase() + fileName.slice(1);
+
+      let extension = "";
+      let content = "";
+
+      switch (fileType) {
+        case "React Component":
+          extension = ".tsx";
+          content = `export default function \${1:${capitalizedFileName}}() {
+	return <div>\${2}</div>;
+}`;
+          break;
+        case "TypeScript Class":
+          extension = ".ts";
+          content = `class \${1:${capitalizedFileName}} {
+	constructor(\${2}) {}
+}`;
+          break;
+        case "TypeScript Interface":
+          extension = ".ts";
+          content = `export default interface \${1:${capitalizedFileName}}{
+	\${2}
+}`;
+          break;
+        case "TypeScript File":
+          extension = ".ts";
+          content = `export function \${1:${capitalizedFileName}}(){
+	console.log(\${1:${fileName}})
+}`;
+          break;
+        default:
+          extension = "";
+          content = "";
+          break;
+      }
+      console.debug(
+        `File name: ${fileName} & extension:${extension} & type:${fileType}`,
+      );
+
+      const filePath = path.join(
+        selectedFolder.uri.fsPath,
+        fileName + extension,
+      );
+      console.debug("File Path", filePath);
+
+      const fileUri = vscode.Uri.file(filePath);
+      console.debug("File URI", fileUri);
+
+      try {
+        await vscode.workspace.fs.writeFile(fileUri, Buffer.from("", "utf-8"));
+        const document = await vscode.workspace.openTextDocument(fileUri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        const snippet = new vscode.SnippetString(content);
+        await editor.insertSnippet(snippet);
+      } catch (error) {
+        vscode.window.showErrorMessage(
+          `Failed to create file: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
     },
   );
 
