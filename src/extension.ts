@@ -22,22 +22,14 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const menu = vscode.commands.registerCommand(
-    "easy-new-file.openPanel",
+    "easy-new-file.openMenu",
     async () => {
-      const panel = vscode.window.createWebviewPanel(
-        "newFilePanel",
-        "Create New File",
-        vscode.ViewColumn.One,
-        { enableScripts: true },
-      );
 
       const options = [
         "React Component",
         "Typescript Class",
         "Typescript File",
       ];
-
-      panel.webview.html = getWebViewContent(options);
 
 	  const selection = await vscode.window.showQuickPick(options, {
         placeHolder: "Select a file type to create",
@@ -66,74 +58,3 @@ export function activate(context: vscode.ExtensionContext) {
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
-
-function getWebViewContent(options: string[]): string {
-  return `
-	 <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            body {
-                display: flex;
-                margin: 0;
-                height: 100vh;
-                font-family: sans-serif;
-            }
-
-            .left {
-                width: 30%;
-                background: #1e1e1e;
-                color: white;
-                padding: 10px;
-                box-sizing: border-box;
-                border-right: 1px solid #333;
-            }
-
-            .right {
-                width: 70%;
-                padding: 20px;
-                box-sizing: border-box;
-            }
-
-            .option {
-                padding: 8px;
-                cursor: pointer;
-                border-radius: 4px;
-            }
-
-            .option:hover {
-                background: #333;
-            }
-
-            input {
-                width: 100%;
-                padding: 8px;
-                font-size: 16px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="left">
-            <h3>Options</h3>
-			${options
-        .map(
-          (option) =>
-            `<div class="${option}" onclick="selectOption('${option}')">${option}</div>`,
-        )
-        .join("")}
-        </div>
-
-        <div class="right">
-            <h2 id="title">File name</h2>
-            <input type="text" placeholder="Enter new file name" />
-        </div>
-
-        <script>
-            function selectOption(option) {
-                document.getElementById('title').innerText = option;
-            }
-        </script>
-    </body>
-    </html>
-	`;
-}

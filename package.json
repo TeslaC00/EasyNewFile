@@ -18,13 +18,13 @@
         "title": "Hello World"
       },
       {
-        "command": "easy-new-file.openPanel",
-        "title": "Open new file panel"
+        "command": "easy-new-file.openMenu",
+        "title": "Open new file menu"
       }
     ],
     "keybindings": [
       {
-        "command": "easy-new-file.openPanel",
+        "command": "easy-new-file.openMenu",
         "title": "Create a new file",
         "key": "alt+n",
         "when": "true"
