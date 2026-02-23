@@ -25,6 +25,15 @@ export function activate(context: vscode.ExtensionContext) {
   const menu = vscode.commands.registerCommand(
     "easy-new-file.openMenu",
     async () => {
+      const workspaceFolders = vscode.workspace.workspaceFolders;
+
+      if (!workspaceFolders) {
+        vscode.window.showErrorMessage(
+          "No workspace folder found. Please open a folder first.",
+        );
+        return;
+      }
+
       const fileTypes = [
         "React Component",
         "TypeScript Class",
@@ -39,22 +48,17 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (!fileType) return;
 
-      const folders = vscode.workspace.workspaceFolders;
-      if (!folders) {
-        vscode.window.showErrorMessage(
-          "No workspace folder found. Please open a folder first.",
-        );
-        return;
-      }
+      const selectedFolder = await vscode.window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        openLabel: "Select target folder",
+        defaultUri: vscode.workspace.workspaceFolders?.[0].uri,
+      });
 
-      const folder = await vscode.window.showQuickPick(
-        folders.map((f) => f.name),
-        { placeHolder: "Select target folder" },
-      );
+      if (!selectedFolder) return;
 
-      if (!folder) return;
-
-      const selectedFolder = folders.find((f) => f.name === folder)!;
+      const folderuri = selectedFolder[0];
 
       const fileName = await vscode.window.showInputBox({
         prompt: "Insert name",
@@ -102,10 +106,7 @@ export function activate(context: vscode.ExtensionContext) {
         `File name: ${fileName} & extension:${extension} & type:${fileType}`,
       );
 
-      const filePath = path.join(
-        selectedFolder.uri.fsPath,
-        fileName + extension,
-      );
+      const filePath = path.join(folderuri.fsPath, fileName + extension);
       console.debug("File Path", filePath);
 
       const fileUri = vscode.Uri.file(filePath);
