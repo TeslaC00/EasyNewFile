@@ -16,6 +16,18 @@
       {
         "command": "easy-new-file.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "easy-new-file.openPanel",
+        "title": "Open new file panel"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "easy-new-file.openPanel",
+        "title": "Create a new file",
+        "key": "alt+n",
+        "when": "true"
       }
     ]
   },
